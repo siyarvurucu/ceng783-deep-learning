@@ -63,16 +63,13 @@ class LinearClassifier(object):
       X_i = X[i] # ith training instance     
       scores = W.dot(X_i)   # W . X_i  (bias is included in W & X
       correct_class_score = scores[y[i]] # score for the correct label
-      K = 0  # counts the non-zero margins
       for j in xrange(num_classes):
         if j == y[i]:
           continue
         margin = scores[j] - correct_class_score + delta 
         if margin > 0:
-          K += 1
           loss += margin
-          dW[j, :] += X_i
-      dW[y[i],:] -= K*X_i
+
     # Right now the loss is a sum over all training examples, but we want it
     # to be an average instead so we divide by num_train.
     loss /= num_train
@@ -87,9 +84,7 @@ class LinearClassifier(object):
     # loss is being computed. As a result you may need to modify some of the    #
     # code above to compute the gradient.                                       #
     #############################################################################
-    dW /= num_train  # divide by number of samples because it is summed.
-    dW += reg*W   # add the derivative of the regularizer term
-    
+    pass
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
@@ -131,8 +126,7 @@ class LinearClassifier(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    W_t = np.transpose(W)  # W_T will be (D,C) 
-    scores = X.dot(W_t) # this will make N,C
+    pass 
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -150,15 +144,7 @@ class LinearClassifier(object):
     # classifier loss. So that your results match ours, multiply the            #
     # regularization loss by 0.5                                                #
     #############################################################################
-    num_train = X.shape[0]
-    correct_class_score = scores[np.arange(num_train), y] # if the correct class is 7 for sample 3, then correct_class_score[3] will be scores[3,7]
-    margins = np.maximum(0, scores - correct_class_score[:,np.newaxis] + delta)
-     # scores was N,C correct class scores was N, we broadcasted correct class so we can substract it from the scores and get the loss for every class
-    # now we will eliminate the losses in correct classes because they are not in the loss summation.
-    # creating loss from max(0, Xy*Wt-Xy*Wt + delta) = delta is meaningless
-    margins[np.arange(num_train), y] = 0  # correct class losses set zero
-    loss = np.sum(margins)/num_train + 0.5*reg*np.sum(W*W)
-
+    pass 
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -169,15 +155,7 @@ class LinearClassifier(object):
     # Store the results in the `grad' variable, which should be a matrix that   #
     # has the same size as 'W' 							#
     #############################################################################
-    # margins is (N, C), so every column shows losses of those classes. Every x correspoinding to non-zero value of class will be added to dW of that class.
-    mask = np.zeros(margins.shape) # we will create a mask to count non-zero losses
-    mask[margins>0] = 1            # to calculate correct class losses 
-    K = np.sum(mask, axis=1)       # Count through classes
-    mask[np.arange(num_train),y] = -K 
-    mask_t = np.transpose(mask) 
-    grad = mask_t.dot(X)    # mask_t is (C,N) dotted with (N,D) makes (C,D)
-    grad /=num_train
-    grad += reg*W                 # add derivative of reg term
+    pass 
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -216,15 +194,8 @@ class LinearClassifier(object):
     # TODO: Perform the forward pass, computing the class scores for the input. #
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
-    ###########################################################X##################
-    W_t = np.transpose(W)  # W_T will be (D,C) 
-    scores = X.dot(W_t) # this will make N,C
-    scores -= np.max(scores)  # avoiding large numbers for practical issues
-    expo_scores = np.exp(scores) # exp of scores 
-    expo_sums = np.sum(expo_scores,axis=1) # sum of the each sample
-    probs = expo_scores/expo_sums[:,np.newaxis] # softmax probabilites
-    scores = probs   # are the new scores
-    
+    #############################################################################
+    pass
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -242,12 +213,7 @@ class LinearClassifier(object):
     # classifier loss. So that your results match ours, multiply the            #
     # regularization loss by 0.5                                                #
     #############################################################################
-    num_train = X.shape[0]
-    correct_class_score = scores[np.arange(num_train), y]
-    loss = -np.sum(np.log(correct_class_score))
-    loss /= num_train
-    loss += 0.5*reg*np.sum(W * W)    
-    
+    pass
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -259,12 +225,7 @@ class LinearClassifier(object):
     # Store the results in the `grad' variable, which should be a matrix that   #
     # has the same size as 'W' 							#
     #############################################################################
-    scores_t = np.transpose(scores)
-    mask_t = np.zeros(scores_t.shape)
-    mask_t[y, range(num_train)] = 1
-    grad = scores_t.dot(X) - mask_t.dot(X)
-    grad /= num_train
-    grad += reg*W
+    pass
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -305,26 +266,23 @@ class LinearClassifier(object):
     for it in xrange(num_iters):
       X_batch = None
       y_batch = None
-      permutation = np.random.permutation(X.shape[0])
-      #learning_rate = learning_rate*learning_rate_decay
 
       #########################################################################
       # TODO: Create a random minibatch of training data and labels, storing  #
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
-      X_batch = X[permutation[0:batch_size],:]
-      y_batch = y[permutation[0:batch_size]]
+      pass 
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
 
       # Compute loss and gradients using the current minibatch
       if loss == 'hinge':
-        loss_val, grad = self.vectorized_hinge_loss(X_batch, y=y_batch, reg=reg, delta=delta)
+      	loss_val, grad = self.vectorized_hinge_loss(X_batch, y=y_batch, reg=reg, delta=delta)
       elif loss == 'xentropy':
-        loss_val, grad = self.vectorized_xentropy_loss(X_batch, y=y_batch, reg=reg)
+      	loss_val, grad = self.vectorized_xentropy_loss(X_batch, y=y_batch, reg=reg)
       else:
-        print "Unknown loss function ('%s')" % (loss)
+      	print "Unknown loss function ('%s')" % (loss)
       
       loss_history.append(loss_val)
 
@@ -334,9 +292,7 @@ class LinearClassifier(object):
       # using stochastic gradient descent. You'll need to use the gradients   #
       # stored in the grad variable defined above.                            #
       #########################################################################
-      #W = self.params['W']
-      self.params['W'] -= learning_rate*grad
-      
+      pass
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -382,10 +338,7 @@ class LinearClassifier(object):
     # TODO: Implement this function; it should be VERY simple!                #
     # Hint: Look up numpy's argmax function				      #
     ###########################################################################
-    W = self.params['W']
-    W_t = np.transpose(W)   # D,C
-    scores = X.dot(W_t)   # N,C
-    y_pred = np.argmax(scores,axis=1)
+    pass 
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
